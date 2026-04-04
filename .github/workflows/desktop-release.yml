@@ -1,0 +1,97 @@
+# CI workflow for building ExcaliMath Desktop installers.
+# Triggered on tags matching vDesktop-* or manual dispatch.
+
+name: Desktop Release
+
+on:
+  push:
+    tags:
+      - "vDesktop-*"
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Target platform (all, mac, win, linux)"
+        required: false
+        default: "all"
+
+jobs:
+  build-web:
+    name: Build Web App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: apps/demo/dist/
+
+  build-desktop:
+    name: Build Desktop (${{ matrix.os }})
+    needs: build-web
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            platform: darwin
+            artifact: ExcaliMath.dmg
+          - os: windows-latest
+            platform: win32
+            artifact: ExcaliMath-Setup.exe
+          - os: ubuntu-latest
+            platform: linux
+            artifact: ExcaliMath.AppImage
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: apps/desktop/src/views/mainview/
+
+      - name: Install desktop dependencies
+        working-directory: apps/desktop
+        run: bun install
+
+      - name: Build desktop app
+        working-directory: apps/desktop
+        run: bun run build
+
+      # TODO: Add code signing steps for macOS and Windows
+      # - name: Sign (macOS)
+      #   if: matrix.platform == 'darwin'
+      #   run: ...
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.platform }}
+          path: apps/desktop/dist/${{ matrix.artifact }}
+
+  release:
+    name: Create Release
+    needs: build-desktop
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+          generate_release_notes: true

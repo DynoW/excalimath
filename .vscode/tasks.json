@@ -1,0 +1,100 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    // ── Build All ──
+    {
+      "label": "Build All (Web + Desktop)",
+      "dependsOn": ["Build Web All", "Build Desktop"],
+      "dependsOrder": "sequence",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+
+    // ══════════════════════════════
+    // ── Web Tasks ──
+    // ══════════════════════════════
+
+    {
+      "label": "Build Web All",
+      "detail": "Build core library + demo app",
+      "type": "shell",
+      "command": "npm run build",
+      "group": "build",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Build Core",
+      "detail": "Build @excalimath/core library only",
+      "type": "shell",
+      "command": "npm run build:core",
+      "group": "build",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Build Demo",
+      "detail": "Build the web demo app only",
+      "type": "shell",
+      "command": "npm run build --workspace=apps/demo",
+      "group": "build",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Dev Server",
+      "detail": "Start the web demo app in dev mode",
+      "type": "shell",
+      "command": "npm run dev",
+      "group": "test",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Type Check",
+      "detail": "Run TypeScript type checking across all packages",
+      "type": "shell",
+      "command": "npm run typecheck",
+      "group": "build",
+      "problemMatcher": ["$tsc"]
+    },
+
+    // ══════════════════════════════
+    // ── Desktop Tasks (Bun + Electrobun) ──
+    // ══════════════════════════════
+
+    {
+      "label": "Build Desktop",
+      "detail": "Build the Electrobun desktop app (requires Bun)",
+      "type": "shell",
+      "command": "bun run build",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/desktop"
+      },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev Desktop",
+      "detail": "Start the desktop app in dev mode (requires Bun)",
+      "type": "shell",
+      "command": "bun run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/desktop"
+      },
+      "group": "test",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Install Desktop Deps",
+      "detail": "Install Electrobun dependencies via Bun",
+      "type": "shell",
+      "command": "bun install",
+      "options": {
+        "cwd": "${workspaceFolder}/apps/desktop"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

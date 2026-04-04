@@ -1,0 +1,31 @@
+{
+  "name": "@excalimath/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ExcaliMath Desktop — offline math whiteboard powered by Electrobun",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "electrobun dev",
+    "build": "electrobun build",
+    "build:mac": "electrobun build --platform darwin",
+    "build:win": "electrobun build --platform win32",
+    "build:linux": "electrobun build --platform linux",
+    "package": "electrobun build && node scripts/package.cjs"
+  },
+  "dependencies": {
+    "@excalidraw/excalidraw": "^0.17.6",
+    "electrobun": "^1.16.0",
+    "katex": "^0.16.44",
+    "mathjs": "^15.1.1",
+    "plotly.js-dist-min": "^3.5.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "typescript": "^5.4.0"
+  }
+}

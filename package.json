@@ -1,0 +1,35 @@
+{
+  "name": "excalimath",
+  "private": true,
+  "version": "1.1.0",
+  "description": "A math-ready whiteboard companion for Excalidraw — LaTeX equations, function graphs, and STEM shape libraries.",
+  "license": "MIT",
+  "author": "Tamer — ITWorx EdTech",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tamerUAE/excalimath.git"
+  },
+  "keywords": [
+    "excalidraw",
+    "math",
+    "latex",
+    "katex",
+    "whiteboard",
+    "education",
+    "stem"
+  ],
+  "workspaces": [
+    "packages/*",
+    "apps/demo",
+    "apps/desktop"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/demo",
+    "build": "npm run build --workspace=packages/core && npm run build --workspace=apps/demo",
+    "build:core": "npm run build --workspace=packages/core",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
