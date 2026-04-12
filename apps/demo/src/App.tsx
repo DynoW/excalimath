@@ -12,15 +12,16 @@ export function App() {
       const elements = localStorage.getItem("excalidraw-elements");
       const appState = localStorage.getItem("excalidraw-appState");
       if (elements) {
+        const parsedElements = JSON.parse(elements);
         return {
-          elements: JSON.parse(elements),
+          elements: Array.isArray(parsedElements) ? parsedElements : [],
           appState: appState ? JSON.parse(appState) : undefined,
         };
       }
     } catch (error) {
       console.error("Failed to restore Excalidraw data", error);
     }
-    return null;
+    return undefined;
   });
 
   const handleExcalidrawAPI = useCallback((api: any) => {
