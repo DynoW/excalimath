@@ -27,14 +27,11 @@ export function App() {
   }, []);
 
   const handleChange = useCallback((elements: readonly any[], appState: any) => {
-    if (timeoutId.current) clearTimeout(timeoutId.current);
-    timeoutId.current = setTimeout(() => {
-      try {
-        localStorage.setItem("excalidraw-elements", JSON.stringify(elements));
-      } catch (error) {
-        console.error("Failed to save Excalidraw data", error);
-      }
-    }, 1000); // 1-second debounce to match typical auto-save behavior
+    try {
+      localStorage.setItem("excalidraw-elements", JSON.stringify(elements));
+    } catch (error) {
+      console.error("Failed to save Excalidraw data", error);
+    }
   }, []);
 
   const handleSave = useCallback((data: ExcalimathSceneData) => {
