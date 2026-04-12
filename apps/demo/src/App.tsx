@@ -10,12 +10,10 @@ export function App() {
   const [initialData] = useState(() => {
     try {
       const elements = localStorage.getItem("excalidraw-elements");
-      const appState = localStorage.getItem("excalidraw-appState");
       if (elements) {
         const parsedElements = JSON.parse(elements);
         return {
           elements: Array.isArray(parsedElements) ? parsedElements : [],
-          appState: appState ? JSON.parse(appState) : undefined,
         };
       }
     } catch (error) {
@@ -33,7 +31,6 @@ export function App() {
     timeoutId.current = setTimeout(() => {
       try {
         localStorage.setItem("excalidraw-elements", JSON.stringify(elements));
-        localStorage.setItem("excalidraw-appState", JSON.stringify(appState));
       } catch (error) {
         console.error("Failed to save Excalidraw data", error);
       }
