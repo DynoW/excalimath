@@ -81,7 +81,7 @@ export async function renderGraphToSvg(
       zerolinecolor: "#444",
       dtick: axis.tickInterval,
     },
-    margin: { l: 50, r: 30, t: 20, b: 50 },
+    margin: { l: 30, r: 20, t: 20, b: 30 }, // Margins of svg
     paper_bgcolor: config.backgroundColor === "transparent" ? "rgba(0,0,0,0)" : config.backgroundColor,
     plot_bgcolor: config.backgroundColor === "transparent" ? "rgba(0,0,0,0)" : config.backgroundColor,
     showlegend: traces.length > 1,
