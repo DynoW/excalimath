@@ -66,6 +66,19 @@ export function ExcaliMath({
   const editingElementIdRef = useRef<string | null>(null);
   const lastPolledSelectionRef = useRef<string | null>(null);
   const restoredRef = useRef(false);
+  const isVsCodeWebview = useMemo(() => {
+    if (typeof window === "undefined" || typeof document === "undefined") return false;
+    const body = document.body;
+    if (!body) return false;
+    if (
+      body.classList.contains("vscode-light") ||
+      body.classList.contains("vscode-dark") ||
+      body.classList.contains("vscode-high-contrast")
+    ) {
+      return true;
+    }
+    return typeof (window as any).acquireVsCodeApi === "function";
+  }, []);
 
   // ── Theme resolution ──
   const excalidrawTheme = excalidrawAPI?.getAppState?.()?.theme;
@@ -173,54 +186,66 @@ export function ExcaliMath({
   // When the sidebar is open and user selects an equation/graph on canvas,
   // automatically switch to edit mode for that element.
   // When deselecting an element, drop back to insert mode.
+  const syncSelectionFromCanvas = useCallback(() => {
+    if (!excalidrawAPI) return;
+
+    const appState = excalidrawAPI.getAppState();
+    const selectedIds = appState.selectedElementIds || {};
+    const activeIds = Object.keys(selectedIds).filter((id) => selectedIds[id]);
+    const currentSelectedId = activeIds.length === 1 ? activeIds[0] : null;
+
+    // Only act if the canvas selection has distinctly changed
+    if (currentSelectedId === lastPolledSelectionRef.current) {
+      return;
+    }
+
+    lastPolledSelectionRef.current = currentSelectedId;
+    const selected = getSelectedElement();
+
+    if (!selected) {
+      // User deselected or selected a non-ExcaliMath element -> Insert mode
+      if (editingElementIdRef.current !== null) {
+        setEditingLatex(null);
+        setEditingGraphConfig(null);
+        editingElementIdRef.current = null;
+      }
+      return;
+    }
+
+    // User selected an ExcaliMath element -> Edit mode
+    if (selected.type === "equation") {
+      setEditingLatex(selected.data.latex);
+      editingElementIdRef.current = selected.data.elementId;
+      setActiveTab("equation");
+    } else if (selected.type === "graph") {
+      try {
+        setEditingGraphConfig(JSON.parse(selected.data.config));
+        editingElementIdRef.current = selected.data.elementId;
+        setActiveTab("graph");
+      } catch { /* ignore */ }
+    }
+  }, [excalidrawAPI, getSelectedElement]);
+
   useEffect(() => {
     if (!excalidrawAPI || activeTab === null) return;
 
-    const checkSelection = () => {
-      const appState = excalidrawAPI.getAppState();
-      const selectedIds = appState.selectedElementIds || {};
-      const activeIds = Object.keys(selectedIds).filter((id) => selectedIds[id]);
-      const currentSelectedId = activeIds.length === 1 ? activeIds[0] : null;
-
-      // Only act if the canvas selection has distinctly changed
-      if (currentSelectedId === lastPolledSelectionRef.current) {
-        return;
-      }
-
-      lastPolledSelectionRef.current = currentSelectedId;
-      const selected = getSelectedElement();
-
-      if (!selected) {
-        // User deselected or selected a non-ExcaliMath element -> Insert mode
-        if (editingElementIdRef.current !== null) {
-          setEditingLatex(null);
-          setEditingGraphConfig(null);
-          editingElementIdRef.current = null;
-        }
-        return;
-      }
-
-      // User selected an ExcaliMath element -> Edit mode
-      if (selected.type === "equation") {
-        setEditingLatex(selected.data.latex);
-        editingElementIdRef.current = selected.data.elementId;
-        setActiveTab("equation");
-      } else if (selected.type === "graph") {
-        try {
-          setEditingGraphConfig(JSON.parse(selected.data.config));
-          editingElementIdRef.current = selected.data.elementId;
-          setActiveTab("graph");
-        } catch { /* ignore */ }
-      }
-    };
-
     // Check immediately in case selection changed before sidebar opened
-    checkSelection();
+    syncSelectionFromCanvas();
 
-    // Poll for selection changes while sidebar is open
-    const interval = setInterval(checkSelection, 100);
+    // Prefer API subscription when available for efficient updates.
+    if (typeof excalidrawAPI.onChange === "function") {
+      const unsubscribe = excalidrawAPI.onChange(() => {
+        syncSelectionFromCanvas();
+      });
+      return () => {
+        if (typeof unsubscribe === "function") unsubscribe();
+      };
+    }
+
+    // Fallback for hosts with no onChange API.
+    const interval = setInterval(syncSelectionFromCanvas, 300);
     return () => clearInterval(interval);
-  }, [excalidrawAPI, activeTab, getSelectedElement]);
+  }, [excalidrawAPI, activeTab, syncSelectionFromCanvas]);
 
   const upsertElement = useCallback(
     (svg: string, width: number, height: number, metadata: ExcalimathMetadata) => {
@@ -439,6 +464,7 @@ export function ExcaliMath({
       {/* ── Sidebar ── */}
       {isOpen && (
         <div
+          className="excalimath-sidebar"
           role="dialog"
           aria-label="ExcaliMath"
           style={{
@@ -532,10 +558,12 @@ export function ExcaliMath({
           >
             <style>
               {`
-                /* Hide KaTeX MathML so it doesn't show double text */
-                .katex-mathml {
-                  display: none;
-                }
+                ${isVsCodeWebview ? `
+                  /* VS Code webview workaround: prevent duplicate visible KaTeX text */
+                  .excalimath-sidebar .katex-html {
+                    display: none;
+                  }
+                ` : ""}
 
                 @media (max-width: 730px) {
                   /* Push ExcaliMath container content up so it's not hidden by bottom bars */

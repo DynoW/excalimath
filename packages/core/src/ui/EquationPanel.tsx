@@ -173,12 +173,18 @@ export function EquationPanel({
     };
 
     const rafId = requestAnimationFrame(checkOverflow);
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined" && previewRef.current) {
+      resizeObserver = new ResizeObserver(checkOverflow);
+      resizeObserver.observe(previewRef.current);
+    }
     window.addEventListener("resize", checkOverflow);
     return () => {
       cancelAnimationFrame(rafId);
+      resizeObserver?.disconnect();
       window.removeEventListener("resize", checkOverflow);
     };
-  }, [rawPreviewHtml, validationError]);
+  }, [rawPreviewHtml, validationError, isPreviewOverflowing]);
 
   const categories = useMemo(() => getCategories(), []);
   const filteredExpressions = useMemo(
