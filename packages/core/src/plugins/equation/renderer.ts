@@ -62,8 +62,8 @@ export function renderLatexToSvg(
 
   // Measure actual rendered dimensions from the DOM
   const measured = measureMathml(mathml, fontSize);
-  const padding = 20;
-  const svgWidth = Math.max(measured.width + padding * 2, 60);
+  const padding = 2; // Margins of svg
+  const svgWidth = Math.max(measured.width + padding * 2, 20);
   const svgHeight = Math.max(measured.height + padding * 2, 40);
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}">

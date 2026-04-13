@@ -124,7 +124,9 @@ export function EquationPanel({
   const [showLibrary, setShowLibrary] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [isPreviewOverflowing, setIsPreviewOverflowing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
   const t = useMemo(() => getTheme(isDark), [isDark]);
 
   useEffect(() => {
@@ -139,7 +141,7 @@ export function EquationPanel({
     return validateLatex(latex);
   }, [latex]);
 
-  const previewHtml = useMemo(() => {
+  const rawPreviewHtml = useMemo(() => {
     if (!latex.trim() || validationError) return "";
     try {
       return katex.renderToString(latex, { displayMode: true, throwOnError: false });
@@ -147,6 +149,42 @@ export function EquationPanel({
       return "";
     }
   }, [latex, validationError]);
+
+  const previewHtml = useMemo(() => {
+    if (!rawPreviewHtml) return "";
+    if (!isPreviewOverflowing) return rawPreviewHtml;
+    return rawPreviewHtml.replace(
+      'class="katex-display"',
+      'class="katex-display" style="text-align:left;margin:0"'
+    );
+  }, [rawPreviewHtml, isPreviewOverflowing]);
+
+  useEffect(() => {
+    if (!rawPreviewHtml || validationError) {
+      setIsPreviewOverflowing(false);
+      return;
+    }
+
+    const checkOverflow = () => {
+      const el = previewRef.current;
+      if (!el) return;
+      const overflowing = el.scrollWidth > el.clientWidth + 1;
+      setIsPreviewOverflowing((prev) => (prev === overflowing ? prev : overflowing));
+    };
+
+    const rafId = requestAnimationFrame(checkOverflow);
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined" && previewRef.current) {
+      resizeObserver = new ResizeObserver(checkOverflow);
+      resizeObserver.observe(previewRef.current);
+    }
+    window.addEventListener("resize", checkOverflow);
+    return () => {
+      cancelAnimationFrame(rafId);
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", checkOverflow);
+    };
+  }, [rawPreviewHtml, validationError, isPreviewOverflowing]);
 
   const categories = useMemo(() => getCategories(), []);
   const filteredExpressions = useMemo(
@@ -351,6 +389,7 @@ export function EquationPanel({
             style={{
               width: "100%", padding: "9px 11px", border: `1px solid ${t.border}`,
               boxSizing: "border-box", minWidth: 0,
+              minHeight: 40,
               borderRadius: 6, fontFamily: '"Fira Code", "Cascadia Code", monospace',
               fontSize: 13, resize: "vertical", outline: "none", lineHeight: 1.5,
               backgroundColor: t.bgInput, color: t.text,
@@ -375,10 +414,14 @@ export function EquationPanel({
                 Preview
               </label>
               <div
+                ref={previewRef}
                 style={{
                   padding: "16px", backgroundColor: t.bgElevated, borderRadius: 6,
-                  textAlign: "center", minHeight: 50, display: "flex",
-                  alignItems: "center", justifyContent: "center",
+                  textAlign: isPreviewOverflowing ? "left" : "center",
+                  minHeight: 50, maxHeight: 220, overflowY: "auto",
+                  overflowX: "auto", display: "flex",
+                  alignItems: "center",
+                  justifyContent: isPreviewOverflowing ? "flex-start" : "center",
                   border: `1px solid ${t.borderLight}`, color: t.text,
                 }}
                 dangerouslySetInnerHTML={{ __html: previewHtml }}
