@@ -128,10 +128,10 @@ export function EquationPanel({
   const t = useMemo(() => getTheme(isDark), [isDark]);
 
   useEffect(() => {
-    if (editingLatex !== undefined && editingLatex !== null) {
-      setLatex(editingLatex);
-      setShowLibrary(false);
-    }
+    if (editingLatex === undefined) return;
+
+    setLatex(editingLatex ?? "");
+    setShowLibrary(false);
   }, [editingLatex]);
 
   const validationError = useMemo(() => {
@@ -193,6 +193,10 @@ export function EquationPanel({
     if (!latex.trim() || validationError) return;
     const result = renderLatexToSvg(latex);
     onInsert(latex, result.svg, result.width, result.height);
+    // Restore focus after insert or update
+    setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 50);
   }, [latex, validationError, onInsert]);
 
   const handleExpressionClick = useCallback((entry: ExpressionEntry) => {
@@ -346,6 +350,7 @@ export function EquationPanel({
             placeholder={'Type LaTeX or use the toolbar above'}
             style={{
               width: "100%", padding: "9px 11px", border: `1px solid ${t.border}`,
+              boxSizing: "border-box", minWidth: 0,
               borderRadius: 6, fontFamily: '"Fira Code", "Cascadia Code", monospace',
               fontSize: 13, resize: "vertical", outline: "none", lineHeight: 1.5,
               backgroundColor: t.bgInput, color: t.text,

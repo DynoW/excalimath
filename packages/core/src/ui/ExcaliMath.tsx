@@ -64,6 +64,7 @@ export function ExcaliMath({
   const [editingLatex, setEditingLatex] = useState<string | null>(null);
   const [editingGraphConfig, setEditingGraphConfig] = useState<GraphConfig | null>(null);
   const editingElementIdRef = useRef<string | null>(null);
+  const lastPolledSelectionRef = useRef<string | null>(null);
   const restoredRef = useRef(false);
 
   // ── Theme resolution ──
@@ -168,9 +169,64 @@ export function ExcaliMath({
     return getSelectedExcalimathElement(selected);
   }, [excalidrawAPI]);
 
+  // ── Auto-update on canvas selection ──
+  // When the sidebar is open and user selects an equation/graph on canvas,
+  // automatically switch to edit mode for that element.
+  // When deselecting an element, drop back to insert mode.
+  useEffect(() => {
+    if (!excalidrawAPI || activeTab === null) return;
+
+    const checkSelection = () => {
+      const appState = excalidrawAPI.getAppState();
+      const selectedIds = appState.selectedElementIds || {};
+      const activeIds = Object.keys(selectedIds).filter((id) => selectedIds[id]);
+      const currentSelectedId = activeIds.length === 1 ? activeIds[0] : null;
+
+      // Only act if the canvas selection has distinctly changed
+      if (currentSelectedId === lastPolledSelectionRef.current) {
+        return;
+      }
+
+      lastPolledSelectionRef.current = currentSelectedId;
+      const selected = getSelectedElement();
+
+      if (!selected) {
+        // User deselected or selected a non-ExcaliMath element -> Insert mode
+        if (editingElementIdRef.current !== null) {
+          setEditingLatex(null);
+          setEditingGraphConfig(null);
+          editingElementIdRef.current = null;
+        }
+        return;
+      }
+
+      // User selected an ExcaliMath element -> Edit mode
+      if (selected.type === "equation") {
+        setEditingLatex(selected.data.latex);
+        editingElementIdRef.current = selected.data.elementId;
+        setActiveTab("equation");
+      } else if (selected.type === "graph") {
+        try {
+          setEditingGraphConfig(JSON.parse(selected.data.config));
+          editingElementIdRef.current = selected.data.elementId;
+          setActiveTab("graph");
+        } catch { /* ignore */ }
+      }
+    };
+
+    // Check immediately in case selection changed before sidebar opened
+    checkSelection();
+
+    // Poll for selection changes while sidebar is open
+    const interval = setInterval(checkSelection, 100);
+    return () => clearInterval(interval);
+  }, [excalidrawAPI, activeTab, getSelectedElement]);
+
   const upsertElement = useCallback(
     (svg: string, width: number, height: number, metadata: ExcalimathMetadata) => {
-      if (!excalidrawAPI) return;
+      if (!excalidrawAPI) return undefined;
+
+      const appState = excalidrawAPI.getAppState();
 
       if (editingElementIdRef.current) {
         const elements = excalidrawAPI.getSceneElements();
@@ -191,9 +247,16 @@ export function ExcaliMath({
             ? { ...element, id: el.id }
             : el
         );
-        excalidrawAPI.updateScene({ elements: updatedElements });
+        excalidrawAPI.updateScene({
+          elements: updatedElements,
+          appState: {
+            ...appState,
+            selectedElementIds: { [editingElementIdRef.current]: true }
+          }
+        });
+        emitSave();
+        return editingElementIdRef.current;
       } else {
-        const appState = excalidrawAPI.getAppState();
         const centerX =
           (appState.scrollX * -1 + appState.width / 2) / appState.zoom.value -
           width / 2;
@@ -210,11 +273,14 @@ export function ExcaliMath({
         const currentElements = excalidrawAPI.getSceneElements();
         excalidrawAPI.updateScene({
           elements: [...currentElements, element],
+          appState: {
+            ...appState,
+            selectedElementIds: { [element.id]: true }
+          }
         });
+        emitSave();
+        return element.id;
       }
-
-      editingElementIdRef.current = null;
-      emitSave();
     },
     [excalidrawAPI, emitSave]
   );
@@ -273,24 +339,30 @@ export function ExcaliMath({
 
   const handleInsertEquation = useCallback(
     (latex: string, svg: string, width: number, height: number) => {
-      upsertElement(svg, width, height, {
+      const newId = upsertElement(svg, width, height, {
         excalimath_type: "equation",
         excalimath_source: "equation-panel",
         excalimath_latex: latex,
       });
-      setEditingLatex(null);
+      if (newId) {
+        editingElementIdRef.current = newId;
+        setEditingLatex(latex);
+      }
     },
     [upsertElement]
   );
 
   const handleInsertGraph = useCallback(
     (config: GraphConfig, svg: string, width: number, height: number) => {
-      upsertElement(svg, width, height, {
+      const newId = upsertElement(svg, width, height, {
         excalimath_type: "graph",
         excalimath_source: "graph-panel",
         excalimath_graph_config: JSON.stringify(config),
       });
-      setEditingGraphConfig(null);
+      if (newId) {
+        editingElementIdRef.current = newId;
+        setEditingGraphConfig(config);
+      }
     },
     [upsertElement]
   );
@@ -458,6 +530,22 @@ export function ExcaliMath({
             id={`excalimath-panel-${activeTab}`}
             style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}
           >
+            <style>
+              {`
+                /* Hide KaTeX MathML so it doesn't show double text */
+                .katex-mathml {
+                  display: none;
+                }
+
+                @media (max-width: 730px) {
+                  /* Push ExcaliMath container content up so it's not hidden by bottom bars */
+                  #excalimath-panel-${activeTab} {
+                    padding-bottom: 60px !important;
+                  }
+                }
+              `}
+            </style>
+            
             {activeTab === "equation" && equationEnabled && (
               <EquationPanel
                 visible={true}

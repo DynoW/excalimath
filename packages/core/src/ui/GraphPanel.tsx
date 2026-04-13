@@ -52,6 +52,8 @@ export function GraphPanel({
     if (editingConfig) {
       setConfig(editingConfig);
       setActiveTab("functions");
+    } else {
+      setConfig(createDefaultGraphConfig());
     }
   }, [editingConfig]);
 
@@ -191,7 +193,8 @@ export function GraphPanel({
 
   const inputStyle: React.CSSProperties = {
     padding: "7px 10px", border: `1px solid ${t.border}`, borderRadius: 5,
-    fontSize: 12, outline: "none", backgroundColor: t.bgInput, color: t.text, width: "100%",
+    fontSize: 12, outline: "none", backgroundColor: t.bgInput, color: t.text,
+    width: "100%", boxSizing: "border-box", minWidth: 0,
   };
 
   const labelStyle: React.CSSProperties = {
@@ -386,14 +389,15 @@ export function GraphPanel({
 
         {/* Preview */}
         {previewSvg && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 6 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 6, width: "100%" }}>
             <label style={labelStyle}>Preview</label>
             <div
               ref={previewRef}
               style={{
                 backgroundColor: t.bgElevated, borderRadius: 6,
-                border: `1px solid ${t.borderLight}`, overflow: "hidden",
-                display: "flex", justifyContent: "center",
+                border: `1px solid ${t.borderLight}`, overflowX: "auto", overflowY: "hidden",
+                display: "block",
+                padding: "8px", minHeight: 150
               }}
               dangerouslySetInnerHTML={{ __html: previewSvg }}
             />
