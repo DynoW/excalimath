@@ -351,6 +351,7 @@ export function EquationPanel({
             style={{
               width: "100%", padding: "9px 11px", border: `1px solid ${t.border}`,
               boxSizing: "border-box", minWidth: 0,
+              minHeight: 40,
               borderRadius: 6, fontFamily: '"Fira Code", "Cascadia Code", monospace',
               fontSize: 13, resize: "vertical", outline: "none", lineHeight: 1.5,
               backgroundColor: t.bgInput, color: t.text,
