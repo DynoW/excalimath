@@ -532,8 +532,8 @@ export function ExcaliMath({
           >
             <style>
               {`
-                /* Hide KaTeX MathML so it doesn't show double text */
-                .katex-mathml {
+                /* Hide HTML so it doesn't show double text */
+                .katex-html {
                   display: none;
                 }
 
