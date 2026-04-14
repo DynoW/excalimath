@@ -6,7 +6,7 @@
  * Embedded inside the ExcaliMath sidebar.
  */
 
-import { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { validateExpression } from "../plugins/graph/evaluator";
 import { renderGraphToSvg, parseCsvData } from "../plugins/graph/plotRenderer";
 import { plotTemplates } from "../plugins/graph/templates";
@@ -45,7 +45,6 @@ export function GraphPanel({
   const [previewSvg, setPreviewSvg] = useState("");
   const [rendering, setRendering] = useState(false);
   const [renderError, setRenderError] = useState("");
-  const previewRef = useRef<HTMLDivElement>(null);
   const t = useMemo(() => getTheme(isDark), [isDark]);
 
   useEffect(() => {
@@ -82,7 +81,10 @@ export function GraphPanel({
       try {
         setRendering(true);
         setRenderError("");
-        const result = await renderGraphToSvg(config);
+        const result = await renderGraphToSvg(config, {
+          isDark,
+          purpose: "preview",
+        });
         setPreviewSvg(result.svg);
       } catch (err) {
         setRenderError(err instanceof Error ? err.message : "Render failed");
@@ -92,7 +94,7 @@ export function GraphPanel({
       }
     }, 400);
     return () => clearTimeout(timeout);
-  }, [config]);
+  }, [config, isDark]);
 
   const updateFunction = useCallback((index: number, updates: Partial<FunctionTrace>) => {
     setConfig((prev) => ({
@@ -168,14 +170,17 @@ export function GraphPanel({
   const handleInsert = useCallback(async () => {
     try {
       setRendering(true);
-      const result = await renderGraphToSvg(config);
+      const result = await renderGraphToSvg(config, {
+        isDark,
+        purpose: "insert",
+      });
       onInsert(config, result.svg, result.width, result.height);
     } catch (err) {
       setRenderError(err instanceof Error ? err.message : "Failed to render graph");
     } finally {
       setRendering(false);
     }
-  }, [config, onInsert]);
+  }, [config, onInsert, isDark]);
 
   const hasValidContent =
     config.functions.some((fn, i) => fn.expression.trim() && !errors[i]) ||
@@ -392,7 +397,6 @@ export function GraphPanel({
           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 6, width: "100%" }}>
             <label style={labelStyle}>Preview</label>
             <div
-              ref={previewRef}
               style={{
                 backgroundColor: t.bgElevated, borderRadius: 6,
                 border: `1px solid ${t.borderLight}`, overflowX: "auto", overflowY: "hidden",
