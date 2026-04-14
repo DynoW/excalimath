@@ -14,7 +14,37 @@
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body, #root { width: 100%; height: 100%; overflow: hidden; }
+      html.dark { background-color: #1e1e1e; }
     </style>
+
+    <!-- Apply saved theme before React renders to prevent white flash -->
+    <script>
+      try {
+        function setTheme(theme) {
+          if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        }
+
+        function getTheme() {
+          const theme = window.localStorage.getItem("excalimath-theme");
+
+          if (theme && theme === "auto") {
+            return window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          } else {
+            return theme || "light";
+          }
+        }
+
+        setTheme(getTheme());
+      } catch (e) {
+        console.error("Error setting theme", e);
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

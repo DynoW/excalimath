@@ -1,23 +1,27 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { Excalidraw } from "@excalidraw/excalidraw";
 import { ExcaliMath } from "@excalimath/core";
-import type { ExcalimathSceneData } from "@excalimath/core";
 
 export function App() {
   const [excalidrawAPI, setExcalidrawAPI] = useState<any>(null);
-  const timeoutId = useRef<any>(null);
+  const [lastSavedTheme, setLastSavedTheme] = useState<string | null>(() => {
+    return localStorage.getItem("excalimath-theme");
+  });
 
   const [initialData] = useState(() => {
     try {
       const elements = localStorage.getItem("excalidraw-elements");
-      if (elements) {
-        const parsedElements = JSON.parse(elements);
-        return {
-          elements: Array.isArray(parsedElements) ? parsedElements : [],
-        };
-      }
+      const savedTheme = localStorage.getItem("excalimath-theme");
+      
+      const parsedElements = elements ? JSON.parse(elements) : [];
+      const initialElements = Array.isArray(parsedElements) ? parsedElements : [];
+      
+      return {
+        elements: initialElements,
+        appState: savedTheme ? { theme: savedTheme as "light" | "dark" } : undefined,
+      };
     } catch (error) {
-      console.error("Failed to restore Excalidraw data", error);
+      console.error("Failed to restore initial data", error);
     }
     return undefined;
   });
@@ -32,12 +36,25 @@ export function App() {
     } catch (error) {
       console.error("Failed to save Excalidraw data", error);
     }
-  }, []);
 
-  const handleSave = useCallback((data: ExcalimathSceneData) => {
-    // In a real app, persist this to localStorage, a server, etc.
-    console.log("[ExcaliMath] Scene saved:", data.elements.length, "elements");
-  }, []);
+    // Detect theme changes from appState
+    const currentTheme = appState?.theme;
+    if (currentTheme && currentTheme !== lastSavedTheme) {
+      try {
+        localStorage.setItem("excalimath-theme", currentTheme);
+        setLastSavedTheme(currentTheme);
+        
+        // Apply theme class to html
+        if (currentTheme === "dark") {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      } catch (error) {
+        console.error("Failed to save theme preference", error);
+      }
+    }
+  }, [lastSavedTheme]);
 
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
@@ -51,7 +68,6 @@ export function App() {
               excalidrawAPI={excalidrawAPI}
               enabledPlugins={["equation", "graph", "library"]}
               theme="auto"
-              onSave={handleSave}
             />
           ) : null
         }
