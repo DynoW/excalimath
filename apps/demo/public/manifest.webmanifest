@@ -1,0 +1,22 @@
+{
+  "name": "ExcaliMath",
+  "short_name": "ExcaliMath",
+  "description": "A math whiteboard for Excalidraw with LaTeX equations, graph plotting, and STEM shape libraries.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#6965db",
+  "icons": [
+    {
+      "src": "/logo-math.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/logo-math.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

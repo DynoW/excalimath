@@ -3,7 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ExcaliMath is a math whiteboard for Excalidraw with live LaTeX equations, function graphs, and STEM shape libraries." />
+    <meta name="keywords" content="ExcaliMath, Excalidraw, math whiteboard, LaTeX, equations, function graphs, STEM shapes, geometry, algebra, statistics, physics, chemistry, biology" />
+    <meta name="author" content="ExcaliMath" />
+    <meta name="application-name" content="ExcaliMath" />
+    <meta name="apple-mobile-web-app-title" content="ExcaliMath" />
+    <meta name="theme-color" content="#6965db" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
     <meta name="google-site-verification" content="QVxVz5Q0piEebCzAGPnxypEpLjSp48TyJjjicdQS0LM" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ExcaliMath" />
+    <meta property="og:title" content="ExcaliMath — Math Whiteboard for Excalidraw" />
+    <meta property="og:description" content="Write LaTeX, plot functions, and drop STEM shape libraries directly into Excalidraw." />
+    <meta property="og:image" content="/logo-math.png" />
+    <meta property="og:image:alt" content="ExcaliMath logo" />
+    <meta property="og:url" content="/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ExcaliMath — Math Whiteboard for Excalidraw" />
+    <meta name="twitter:description" content="Write LaTeX, plot functions, and drop STEM shape libraries directly into Excalidraw." />
+    <meta name="twitter:image" content="/logo-math.png" />
+    <link rel="canonical" href="/" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <title>ExcaliMath — Math Whiteboard</title>
     <link
       rel="stylesheet"
@@ -15,6 +37,55 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body, #root { width: 100%; height: 100%; overflow: hidden; }
       html.dark { background-color: #1e1e1e; }
+      body {
+        background:
+          radial-gradient(circle at top left, rgba(105, 101, 219, 0.08), transparent 32%),
+          radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.08), transparent 28%),
+          #fafafa;
+      }
+      html.dark body {
+        background:
+          radial-gradient(circle at top left, rgba(105, 101, 219, 0.18), transparent 32%),
+          radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.1), transparent 28%),
+          #1e1e1e;
+      }
+      .seo-fallback {
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: 4rem 1.5rem 5rem;
+        color: #1f2937;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .seo-fallback h1 {
+        font-size: clamp(2rem, 5vw, 4rem);
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+        margin-bottom: 1rem;
+      }
+      .seo-fallback p {
+        max-width: 56rem;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: #374151;
+        margin-bottom: 1rem;
+      }
+      .seo-fallback ul {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+        gap: 0.75rem;
+        list-style: none;
+        margin-top: 1.5rem;
+      }
+      .seo-fallback li {
+        padding: 1rem 1.1rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(107, 114, 128, 0.16);
+        box-shadow: 0 10px 40px rgba(17, 24, 39, 0.06);
+      }
+      .seo-fallback strong { display: block; margin-bottom: 0.35rem; }
+      .seo-fallback a { color: #4f46e5; }
+      .seo-fallback small { color: #6b7280; }
     </style>
 
     <!-- Apply saved theme before React renders to prevent white flash -->
@@ -45,9 +116,61 @@
         console.error("Error setting theme", e);
       }
     </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "ExcaliMath",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "description": "A math whiteboard for Excalidraw with live LaTeX equations, function graphs, and STEM shape libraries.",
+        "image": "/logo-math.png",
+        "featureList": [
+          "Live LaTeX equation rendering",
+          "Function graph plotting",
+          "STEM shape libraries",
+          "Round-trip save and restore"
+        ],
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
   </head>
   <body>
+    <noscript>
+      <main class="seo-fallback">
+        <h1>ExcaliMath turns Excalidraw into a math whiteboard.</h1>
+        <p>
+          Build and edit LaTeX equations, plot function graphs, and use STEM-focused shape libraries directly inside Excalidraw.
+          ExcaliMath is designed for students, teachers, and technical content authors who want a fast, visual way to create math-rich diagrams.
+        </p>
+        <p>
+          Features include a live equation editor, graph templates, configurable axes, curriculum-aligned geometry and science packs, and round-trip save and restore support.
+        </p>
+        <ul>
+          <li><strong>LaTeX equations</strong><small>Write directly or use the visual toolbar.</small></li>
+          <li><strong>Function graphs</strong><small>Plot multiple functions with templates and safe evaluation.</small></li>
+          <li><strong>STEM libraries</strong><small>Geometry, algebra, statistics, physics, biology, and chemistry packs.</small></li>
+          <li><strong>Excalidraw compatible</strong><small>Works as a companion layer instead of replacing the canvas.</small></li>
+        </ul>
+      </main>
+    </noscript>
     <div id="root"></div>
+    <script>
+      try {
+        const canonical = document.querySelector('link[rel="canonical"]');
+        const ogUrl = document.querySelector('meta[property="og:url"]');
+        const currentUrl = window.location.href.split("?").shift().split("#").shift();
+
+        if (canonical) canonical.setAttribute("href", currentUrl);
+        if (ogUrl) ogUrl.setAttribute("content", currentUrl);
+      } catch (error) {
+        console.error("Error setting canonical URL", error);
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
