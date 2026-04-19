@@ -98,6 +98,19 @@ export async function renderGraphToSvg(
     config,
     options
   );
+  const resolveVisibleTraceColor = (() => {
+    if (!isDarkBackground) return (color: string) => color;
+
+    const colorCache = new Map<string, string>();
+    return (color: string) => {
+      const cached = colorCache.get(color);
+      if (cached) return cached;
+
+      const resolvedColor = getVisibleTraceColor(color, true);
+      colorCache.set(color, resolvedColor);
+      return resolvedColor;
+    };
+  })();
 
   // Build Plotly traces from function expressions
   const traces: Plotly.Data[] = [];
@@ -110,7 +123,7 @@ export async function renderGraphToSvg(
         axis.xMin,
         axis.xMax
       );
-      const visibleColor = getVisibleTraceColor(fn.color, isDarkBackground);
+      const visibleColor = resolveVisibleTraceColor(fn.color);
       traces.push({
         x,
         y,
@@ -126,7 +139,7 @@ export async function renderGraphToSvg(
 
   // Build Plotly traces from data traces
   for (const dt of dataTraces) {
-    const visibleColor = getVisibleTraceColor(dt.color, isDarkBackground);
+    const visibleColor = resolveVisibleTraceColor(dt.color);
     traces.push({
       x: dt.xValues,
       y: dt.yValues,
