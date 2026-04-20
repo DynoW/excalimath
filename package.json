@@ -26,6 +26,8 @@
     "dev": "npm run dev --workspace=apps/demo",
     "build": "npm run build --workspace=packages/core && npm run build --workspace=apps/demo",
     "build:core": "npm run build --workspace=packages/core",
+    "publish:core:dry": "npm publish --workspace=packages/core --access public --dry-run",
+    "publish:core": "npm publish --workspace=packages/core --access public",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
