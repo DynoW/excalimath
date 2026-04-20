@@ -1,0 +1,62 @@
+name: Publish Core Package
+
+on:
+  push:
+    branches:
+      - prod
+    paths:
+      - packages/core/package.json
+      - packages/core/**
+      - package-lock.json
+      - package.json
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Resolve package version
+        id: pkg
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./packages/core/package.json').version")
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if version already exists on npm
+        id: exists
+        shell: bash
+        run: |
+          if npm view "@excalimath/core@${{ steps.pkg.outputs.version }}" version >/dev/null 2>&1; then
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+            echo "@excalimath/core@${{ steps.pkg.outputs.version }} already exists. Skipping publish."
+          else
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install dependencies
+        if: steps.exists.outputs.already_published == 'false'
+        run: npm ci
+
+      - name: Build core package
+        if: steps.exists.outputs.already_published == 'false'
+        run: npm run build:core
+
+      - name: Publish @excalimath/core
+        if: steps.exists.outputs.already_published == 'false'
+        run: npm publish --workspace=packages/core --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
