@@ -3,7 +3,7 @@ name: Publish Core Package
 on:
   push:
     branches:
-      - prod
+      - core
     paths:
       - packages/core/package.json
       - packages/core/**

@@ -1,7 +1,20 @@
 {
   "name": "@excalimath/core",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Math companion plugin for Excalidraw — equations, graphs, and shape libraries.",
+  "keywords": [
+    "excalimath",
+    "excalidraw",
+    "math",
+    "latex",
+    "katex",
+    "graph",
+    "plot",
+    "whiteboard",
+    "react",
+    "education",
+    "stem"
+  ],
   "license": "MIT",
   "author": "Tamer — ITWorx EdTech",
   "contributors": [
