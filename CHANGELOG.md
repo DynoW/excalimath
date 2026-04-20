@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-04-20
+
+### Fixed
+- Graph rendering in dark themes — optimized color resolution for better visibility
+- SVG padding for equations and graphs
+- Equation preview handling for overflow scenarios
+
+### Enhanced
+- Sidebar UX with resize observer for better responsive behavior
+- VS Code webview compatibility
+- LaTeX input field minimum height
+
+### Contributors
+- DynoW — various UX and theme improvements
+
 ## [1.1.0] - 2026-04-05
 
 ### Added
