@@ -59,3 +59,5 @@ jobs:
       - name: Publish @excalimath/core
         if: steps.exists.outputs.already_published == 'false'
         run: npm publish --workspace=packages/core --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
