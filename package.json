@@ -20,11 +20,10 @@
   ],
   "workspaces": [
     "packages/*",
-    "apps/desktop"
+    "apps/*"
   ],
   "scripts": {
     "build": "npm run build --workspace=packages/core",
-    "build:core": "npm run build --workspace=packages/core",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
