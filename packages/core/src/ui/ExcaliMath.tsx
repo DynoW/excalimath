@@ -558,12 +558,9 @@ export function ExcaliMath({
           >
             <style>
               {`
-                ${isVsCodeWebview ? `
-                  /* VS Code webview workaround: prevent duplicate visible KaTeX text */
-                  .excalimath-sidebar .katex-html {
-                    display: none;
-                  }
-                ` : ""}
+                .excalimath-sidebar .katex-html {
+                  display: none;
+                }
 
                 @media (max-width: 730px) {
                   /* Push ExcaliMath container content up so it's not hidden by bottom bars */
