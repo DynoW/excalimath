@@ -200,6 +200,7 @@ export function GraphPanel({
     padding: "7px 10px", border: `1px solid ${t.border}`, borderRadius: 5,
     fontSize: 12, outline: "none", backgroundColor: t.bgInput, color: t.text,
     width: "100%", boxSizing: "border-box", minWidth: 0,
+    colorScheme: isDark ? "dark" : "light",
   };
 
   const labelStyle: React.CSSProperties = {
@@ -208,7 +209,7 @@ export function GraphPanel({
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", color: t.text }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", color: t.text, colorScheme: isDark ? "dark" : "light" }}>
       {/* Sub-tabs */}
       <div style={{ display: "flex", borderBottom: `1px solid ${t.border}` }}>
         {(["functions", "data", "templates"] as Tab[]).map((tab) => (

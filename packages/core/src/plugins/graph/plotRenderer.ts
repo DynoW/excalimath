@@ -216,6 +216,19 @@ export async function renderGraphToSvg(
 
     // Add xmlns for standalone SVG
     svgElement.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+
+    // Make SVG responsive so it scales to container width in previews
+    // - add a viewBox based on the configured pixel dimensions
+    // - remove fixed width/height attributes so CSS sizing can apply
+    // - ensure aspect ratio is preserved and it's displayed as a block
+    svgElement.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svgElement.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    svgElement.removeAttribute("width");
+    svgElement.removeAttribute("height");
+    (svgElement as SVGSVGElement).style.maxWidth = "100%";
+    (svgElement as SVGSVGElement).style.height = "auto";
+    (svgElement as SVGSVGElement).style.display = "block";
+
     const svg = svgElement.outerHTML;
 
     Plotly.purge(container);
