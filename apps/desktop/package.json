@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@excalidraw/excalidraw": "^0.17.6",
-    "@excalimath/core": "*",
+    "@excalimath/core": "^1.1.2",
     "electrobun": "^1.16.0",
     "katex": "^0.16.44",
     "mathjs": "^15.1.1",
