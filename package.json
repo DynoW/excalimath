@@ -1,5 +1,6 @@
 {
   "name": "excalimath",
+  "private": true,
   "version": "1.1.0",
   "description": "A math-ready whiteboard companion for Excalidraw — LaTeX equations, function graphs, and STEM shape libraries.",
   "license": "MIT",
@@ -19,15 +20,11 @@
   ],
   "workspaces": [
     "packages/*",
-    "apps/demo",
     "apps/desktop"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=apps/demo",
-    "build": "npm run build --workspace=packages/core && npm run build --workspace=apps/demo",
+    "build": "npm run build --workspace=packages/core",
     "build:core": "npm run build --workspace=packages/core",
-    "publish:core:dry": "npm publish --workspace=packages/core --access public --dry-run",
-    "publish:core": "npm publish --workspace=packages/core --access public",
     "typecheck": "tsc --noEmit"
   },
   "engines": {

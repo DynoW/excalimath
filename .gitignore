@@ -48,6 +48,9 @@ coverage/
 # TypeScript
 *.tsbuildinfo
 
+# Nested repos (managed independently)
+apps/demo
+
 # Electrobun desktop build output
 apps/desktop/build/
 apps/desktop/artifacts/
