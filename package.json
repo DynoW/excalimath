@@ -55,7 +55,7 @@
   "dependencies": {
     "katex": "^0.16.0",
     "mathjs": "^15.1.1",
-    "plotly.js-dist-min": "^3.5.0"
+    "plotly.js-dist-min": "^3.7.0"
   },
   "devDependencies": {
     "@types/katex": "^0.16.0",
