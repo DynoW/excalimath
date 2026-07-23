@@ -66,19 +66,6 @@ export function ExcaliMath({
   const editingElementIdRef = useRef<string | null>(null);
   const lastPolledSelectionRef = useRef<string | null>(null);
   const restoredRef = useRef(false);
-  const isVsCodeWebview = useMemo(() => {
-    if (typeof window === "undefined" || typeof document === "undefined") return false;
-    const body = document.body;
-    if (!body) return false;
-    if (
-      body.classList.contains("vscode-light") ||
-      body.classList.contains("vscode-dark") ||
-      body.classList.contains("vscode-high-contrast")
-    ) {
-      return true;
-    }
-    return typeof (window as any).acquireVsCodeApi === "function";
-  }, []);
 
   // ── Theme resolution ──
   const excalidrawTheme = excalidrawAPI?.getAppState?.()?.theme;
