@@ -8,6 +8,7 @@ on:
 
 permissions:
   id-token: write
+  contents: read
 
 jobs:
   publish:
@@ -21,3 +22,35 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm publish --provenance
+      - name: Get version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Wait for npm registry propagation
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          for i in $(seq 1 30); do
+            if npm view @excalimath/core@"$VERSION" version 2>/dev/null | grep -q "$VERSION"; then
+              echo "Package @excalimath/core@$VERSION is available"
+              exit 0
+            fi
+            echo "Waiting for npm... ($i/30)"
+            sleep 5
+          done
+          echo "Package not available after 150s" >&2
+          exit 1
+      - name: Notify demo repo
+        run: |
+          gh api /repos/DynoW/excalimath.my-lab.ro/dispatches \
+            --method POST \
+            -f event_type=bump-core \
+            -f client_payload[version]=${{ steps.version.outputs.version }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+      - name: Notify vscode repo
+        run: |
+          gh api /repos/DynoW/excalimath-vscode/dispatches \
+            --method POST \
+            -f event_type=bump-core \
+            -f client_payload[version]=${{ steps.version.outputs.version }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
