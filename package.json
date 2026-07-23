@@ -48,9 +48,9 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@excalidraw/excalidraw": ">=0.17.0",
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+    "@excalidraw/excalidraw": "^0.18.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "dependencies": {
     "katex": "^0.18.1",
@@ -58,10 +58,11 @@
     "plotly.js-dist-min": "^3.7.0"
   },
   "devDependencies": {
-    "@types/katex": "^0.16.0",
+    "@types/katex": "^0.16.8",
     "@types/plotly.js-dist-min": "^2.3.4",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "@typescript/typescript6": "^6.0.2",
     "typescript": "^7.0.2",
     "vite": "^8.1.5",
     "vite-plugin-dts": "^5.0.3"
