@@ -48,9 +48,9 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@excalidraw/excalidraw": "^0.18.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@excalidraw/excalidraw": ">=0.17.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
   },
   "dependencies": {
     "katex": "^0.18.1",
