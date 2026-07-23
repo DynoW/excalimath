@@ -64,8 +64,8 @@ export default function App() {
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `excalidrawAPI` | `ExcalidrawAPI` | required | Excalidraw API instance |
-| `onSave` | `(data) => void` | — | Called when canvas state changes |
-| `initialData` | `InitialData` | — | Restore elements, app state, and files |
+| `onSave` | `(data: ExcalimathSceneData) => void` | — | Called when canvas state changes |
+| `initialData` | `ExcalimathSceneData` | — | Restore elements, app state, and files |
 | `theme` | `"light" \| "dark"` | `"light"` | Force theme, or omit for auto-detect |
 
 ## Development
