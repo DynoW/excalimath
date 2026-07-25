@@ -11,6 +11,7 @@ export {
   getExcalimathMetadata,
 } from "./core/elementFactory";
 export { getSelectedExcalimathElement } from "./core/stateBridge";
+export type { SelectedEquation, SelectedGraph } from "./core/stateBridge";
 export {
   restoreExcalimathFiles,
   restoreExcalimathFilesAsync,

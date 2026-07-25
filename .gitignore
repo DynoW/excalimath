@@ -6,12 +6,12 @@ dist/
 build/
 *.tsbuildinfo
 
-# Environment variables
+# Environment
 .env
 .env.*
 !.env.example
 
-# IDE & editors
+# IDE
 .vscode/*
 !.vscode/tasks.json
 .idea/
@@ -21,19 +21,16 @@ build/
 *.sublime-project
 *.sublime-workspace
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 Desktop.ini
-ehthumbs.db
 
 # Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
 # Testing
 coverage/
@@ -44,16 +41,6 @@ coverage/
 .cache/
 .parcel-cache/
 .vite/
-
-# TypeScript
-*.tsbuildinfo
-
-# Nested repos (managed independently)
-apps/demo
-
-# Electrobun desktop build output
-apps/desktop/build/
-apps/desktop/artifacts/
 
 # Misc
 *.tgz

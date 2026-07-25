@@ -1,32 +1,74 @@
 {
-  "name": "excalimath",
-  "private": true,
-  "version": "1.1.0",
-  "description": "A math-ready whiteboard companion for Excalidraw — LaTeX equations, function graphs, and STEM shape libraries.",
-  "license": "MIT",
-  "author": "Tamer — ITWorx EdTech",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/tamerUAE/excalimath.git"
-  },
+  "name": "@excalimath/core",
+  "version": "1.1.9",
+  "description": "Math companion plugin for Excalidraw — KaTeX equations, Plotly.js graphs, and STEM shape libraries.",
   "keywords": [
     "excalidraw",
     "math",
     "latex",
     "katex",
+    "graph",
+    "plot",
     "whiteboard",
+    "react",
     "education",
     "stem"
   ],
-  "workspaces": [
-    "packages/*",
-    "apps/*"
+  "license": "MIT",
+  "author": "Tamer — ITWorx EdTech",
+  "contributors": [
+    {
+      "name": "DynoW",
+      "url": "https://github.com/DynoW"
+    }
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DynoW/excalimath.git"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "npm run build --workspace=packages/core",
+    "dev": "vite build --watch",
+    "build": "tsc && vite build",
     "typecheck": "tsc --noEmit"
   },
-  "engines": {
-    "node": ">=18"
+  "peerDependencies": {
+    "@excalidraw/excalidraw": ">=0.17.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "dependencies": {
+    "katex": "^0.18.1",
+    "mathjs": "^15.2.0",
+    "plotly.js-dist-min": "^3.7.0"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.8",
+    "@types/plotly.js-dist-min": "^2.3.4",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@typescript/typescript6": "^6.0.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.5",
+    "vite-plugin-dts": "^5.0.3"
+  },
+  "overrides": {
+    "lodash-es": "^4.18.0",
+    "nanoid": "^3.3.8"
   }
 }

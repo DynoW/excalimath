@@ -13,10 +13,10 @@
     "isolatedModules": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true
   },
-  "references": [
-    { "path": "./packages/core" },
-    { "path": "./apps/demo" }
-  ]
+  "include": ["src"]
 }
