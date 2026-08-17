@@ -5,10 +5,11 @@
  * LibraryShape definitions into Excalidraw-ready elements (both native
  * elements and SVG image elements for shapes with smooth curves).
  *
- * Also provides .excalidrawlib file import and cross-pack search.
+ * Also provides cross-pack search.
  */
 
 import type { LibraryPack, LibraryShape, ExcalidrawLibElement } from "./types";
+import { FONT_FAMILY } from "@excalidraw/excalidraw";
 import { svgToDataUrl, createFileEntry } from "../../core/elementFactory";
 import { geometryShapes } from "./packs/geometry";
 import { algebraShapes } from "./packs/algebra";
@@ -62,6 +63,75 @@ export const builtInPacks: LibraryPack[] = [
     enabled: true,
   },
 ];
+
+/** Measure text width and height using offscreen canvas (matching Excalidraw's approach) */
+let canvas: HTMLCanvasElement | null = null;
+function getCanvasContext(): CanvasRenderingContext2D {
+  if (!canvas) {
+    canvas = document.createElement("canvas");
+  }
+  return canvas.getContext("2d")!;
+}
+
+/** Font-family names + fallback chains, matching Excalidraw's internal getFontFamilyString */
+const FONT_FAMILY_NAMES: Record<number, string> = {
+  [FONT_FAMILY.Virgil]: "Virgil, Segoe UI Emoji",
+  [FONT_FAMILY.Helvetica]: "Helvetica, Segoe UI Emoji",
+  [FONT_FAMILY.Cascadia]: "Cascadia, Segoe UI Emoji",
+  [FONT_FAMILY.Excalifont]: "Excalifont, Xiaolai, Segoe UI Emoji",
+  [FONT_FAMILY.Nunito]: "Nunito, Segoe UI Emoji",
+  [FONT_FAMILY["Lilita One"]]: "Lilita One, Segoe UI Emoji",
+  [FONT_FAMILY["Comic Shanns"]]: "Comic Shanns, Segoe UI Emoji",
+  [FONT_FAMILY["Liberation Sans"]]: "Liberation Sans, Segoe UI Emoji",
+};
+
+function getFontString(fontSize: number, fontFamily: number): string {
+  const name = FONT_FAMILY_NAMES[fontFamily] || FONT_FAMILY_NAMES[FONT_FAMILY.Virgil];
+  return `${fontSize}px ${name}`;
+}
+
+/** Per-family line heights, matching Excalidraw's internal FONT_METADATA */
+const LINE_HEIGHTS: Record<number, number> = {
+  [FONT_FAMILY.Virgil]: 1.25,
+  [FONT_FAMILY.Helvetica]: 1.15,
+  [FONT_FAMILY.Cascadia]: 1.2,
+  [FONT_FAMILY.Excalifont]: 1.25,
+  [FONT_FAMILY.Nunito]: 1.35,
+  [FONT_FAMILY["Lilita One"]]: 1.15,
+  [FONT_FAMILY["Comic Shanns"]]: 1.25,
+  [FONT_FAMILY["Liberation Sans"]]: 1.15,
+};
+
+function measureText(text: string, fontSize: number, fontFamily: number): { width: number; height: number } {
+  const lineHeight = LINE_HEIGHTS[fontFamily] || 1.25;
+  const height = fontSize * lineHeight * text.split("\n").length;
+  if (text.trim() === "") {
+    return { width: 0, height };
+  }
+  const ctx = getCanvasContext();
+  ctx.font = getFontString(fontSize, fontFamily);
+  const lines = text.split("\n");
+  let maxWidth = 0;
+  for (const line of lines) {
+    maxWidth = Math.max(maxWidth, ctx.measureText(line || " ").width);
+  }
+  return { width: maxWidth, height };
+}
+
+/** Compute x offset for text alignment so the text appears at the intended position */
+function getTextAlignOffset(
+  textAlign: string | undefined,
+  definedWidth: number,
+  measuredWidth: number,
+): number {
+  if (textAlign === "center") {
+    return (definedWidth - measuredWidth) / 2;
+  }
+  if (textAlign === "right") {
+    return definedWidth - measuredWidth;
+  }
+  return 0;
+}
 
 /** Generate a random Excalidraw element ID */
 function generateId(): string {
@@ -161,17 +231,26 @@ export function shapeToExcalidrawElements(
     };
 
     if (el.type === "text") {
+      const fontSize = el.fontSize || 16;
+      const fontFamily = el.fontFamily || 1;
+      const text = el.text || "";
+      const measured = measureText(text, fontSize, fontFamily);
+      const alignOffsetX = getTextAlignOffset(el.textAlign, el.width > 0 ? el.width : measured.width, measured.width);
+
       return {
         ...base,
-        text: el.text || "",
-        fontSize: el.fontSize || 16,
-        fontFamily: el.fontFamily || 1,
+        x: base.x + alignOffsetX,
+        width: measured.width,
+        height: measured.height,
+        text,
+        fontSize,
+        fontFamily,
         textAlign: el.textAlign || "left",
         verticalAlign: "top",
         containerId: null,
-        originalText: el.text || "",
+        originalText: text,
         autoResize: true,
-        lineHeight: 1.25,
+        lineHeight: LINE_HEIGHTS[fontFamily] || 1.25,
       };
     }
 
@@ -191,32 +270,6 @@ export function shapeToExcalidrawElements(
   });
 
   return { elements, files: [] };
-}
-
-/**
- * Parse an .excalidrawlib JSON file and return a LibraryPack.
- */
-export function parseExcalidrawLib(json: string, name: string): LibraryPack {
-  const parsed = JSON.parse(json);
-  if (parsed.type !== "excalidrawlib") {
-    throw new Error("Invalid file: not an excalidrawlib file");
-  }
-
-  const libraryItems = parsed.libraryItems || parsed.library || [];
-  const shapes: LibraryShape[] = libraryItems.map(
-    (item: { name?: string; elements: ExcalidrawLibElement[] }, i: number) => ({
-      name: item.name || `Shape ${i + 1}`,
-      elements: item.elements || [],
-    })
-  );
-
-  return {
-    name,
-    description: `Imported library: ${name}`,
-    gradeRange: "Custom",
-    shapes,
-    enabled: true,
-  };
 }
 
 /** Filter shapes across enabled packs by search term */

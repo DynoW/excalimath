@@ -49,7 +49,6 @@ export {
 export {
   builtInPacks,
   shapeToExcalidrawElements,
-  parseExcalidrawLib,
   searchShapes,
 } from "./plugins/geometry";
 export { LibraryPanel } from "./ui/LibraryPanel";

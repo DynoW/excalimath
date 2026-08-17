@@ -1,7 +1,6 @@
 export {
   builtInPacks,
   shapeToExcalidrawElements,
-  parseExcalidrawLib,
   searchShapes,
 } from "./registry";
 export type { ShapeInsertResult } from "./registry";

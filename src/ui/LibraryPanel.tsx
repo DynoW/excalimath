@@ -1,15 +1,15 @@
 /**
  * @module LibraryPanel
  *
- * Shape library browser with search, pack filtering, toggle controls,
- * and custom .excalidrawlib import. Embedded inside the ExcaliMath sidebar.
+ * Shape library browser with search, pack filtering, and toggle controls.
+ * Embedded inside the ExcaliMath sidebar. .excalidrawlib imports are handled
+ * by Excalidraw's native library, not here.
  */
 
-import { useState, useCallback, useMemo, useRef } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   builtInPacks,
   searchShapes,
-  parseExcalidrawLib,
   type LibraryPack,
   type LibraryShape,
 } from "../plugins/geometry";
@@ -29,7 +29,6 @@ export function LibraryPanel({ onInsert, onClose, visible, isDark = false }: Lib
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPack, setSelectedPack] = useState("");
   const [showToggles, setShowToggles] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const t = useMemo(() => getTheme(isDark), [isDark]);
 
   const togglePack = useCallback((packName: string) => {
@@ -52,23 +51,6 @@ export function LibraryPanel({ onInsert, onClose, visible, isDark = false }: Lib
     }
     return results;
   }, [packs, searchTerm, selectedPack]);
-
-  const handleImportFile = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      try {
-        const text = await file.text();
-        const name = file.name.replace(/\.excalidrawlib$/, "");
-        const imported = parseExcalidrawLib(text, name);
-        setPacks((prev) => [...prev, imported]);
-        setSelectedPack(imported.name);
-      } catch (err) {
-        alert(`Failed to import: ${err instanceof Error ? err.message : "Unknown error"}`);
-      }
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }, []
-  );
 
   const totalShapes = packs.filter((p) => p.enabled).reduce((sum, p) => sum + p.shapes.length, 0);
 
@@ -173,18 +155,6 @@ export function LibraryPanel({ onInsert, onClose, visible, isDark = false }: Lib
             {searchTerm ? "No shapes match your search." : "No packs enabled."}
           </div>
         )}
-
-        {/* Import button — flows inside the grid */}
-        <div style={{ gridColumn: "1 / -1", marginTop: 4 }}>
-          <input ref={fileInputRef} type="file" accept=".excalidrawlib" onChange={handleImportFile} aria-label="Import library file" style={{ display: "none" }} />
-          <button type="button" onClick={() => fileInputRef.current?.click()}
-            style={{
-              width: "100%", padding: "8px 12px", border: `1px dashed ${t.border}`, borderRadius: 6,
-              background: "none", cursor: "pointer", fontSize: 12, color: t.accent, fontWeight: 500,
-            }}>
-            Import .excalidrawlib
-          </button>
-        </div>
       </div>
     </div>
   );
