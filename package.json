@@ -46,7 +46,8 @@
     "dev": "vite build --watch",
     "build": "tsc && vite build",
     "typecheck": "tsc --noEmit",
-    "demo:install": "npm run build && npm pack --pack-destination /tmp && cd ../excalimath-demo && npm install /tmp/excalimath-core-1.2.7.tgz"
+    "demo:install": "npm run build && npm pack --pack-destination /tmp && cd ../excalimath-demo && npm install /tmp/excalimath-core-1.2.7.tgz",
+    "demo:restore": "cd ../excalimath-demo && npm install @excalimath/core@^1.2.7"
   },
   "peerDependencies": {
     "@excalidraw/excalidraw": ">=0.17.0",
