@@ -42,6 +42,8 @@ export default function App() {
 }
 ```
 
+> For a complete working example, see the [ExcaliMath Demo](https://github.com/DynoW/excalimath-demo) — a full Vite + React app with auto-save, theme support, and library imports.
+
 ## Features
 
 ### Equations (KaTeX)
@@ -81,7 +83,7 @@ npm run typecheck    # type-check only
 
 ## Related
 
-- [ExcaliMath Demo](https://excalimath.my-lab.ro) — live demo app
+- [ExcaliMath Demo](https://github.com/DynoW/excalimath-demo) — live demo at [excalimath.my-lab.ro](https://excalimath.my-lab.ro)
 - [ExcaliMath for VS Code](https://marketplace.visualstudio.com/items?itemName=DynoW.excalimath-vscode) — VS Code extension
 
 ## License

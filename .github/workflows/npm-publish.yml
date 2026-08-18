@@ -42,7 +42,7 @@ jobs:
           exit 1
       - name: Notify demo repo
         run: |
-          gh api /repos/DynoW/excalimath.my-lab.ro/dispatches \
+          gh api /repos/DynoW/excalimath-demo/dispatches \
             --method POST \
             -f event_type=bump-core \
             -f client_payload[version]=${{ steps.version.outputs.version }}
