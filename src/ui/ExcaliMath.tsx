@@ -393,8 +393,15 @@ export function ExcaliMath({
         excalidrawAPI.addFiles(result.files);
       }
       const currentElements = excalidrawAPI.getSceneElements();
+      const newElements = [...currentElements, ...result.elements];
       excalidrawAPI.updateScene({
-        elements: [...currentElements, ...result.elements],
+        elements: newElements,
+        appState: {
+          ...appState,
+          selectedElementIds: Object.fromEntries(
+            result.elements.map((el) => [el.id, true])
+          ),
+        },
       });
       emitSave();
     },
