@@ -180,7 +180,7 @@ export async function renderGraphToSvg(
       zerolinecolor: axisColor,
       dtick: axis.tickInterval,
     },
-    margin: { l: 55, r: 20, t: 20, b: 50 }, // Margins of svg
+    margin: { l: 30, r: 20, t: 20, b: 30 }, // Margins of svg
     paper_bgcolor: isTransparentBg ? "rgba(0,0,0,0)" : config.backgroundColor,
     plot_bgcolor: isTransparentBg ? "rgba(0,0,0,0)" : config.backgroundColor,
     showlegend: traces.length > 1,
@@ -217,17 +217,17 @@ export async function renderGraphToSvg(
     // Add xmlns for standalone SVG
     svgElement.setAttribute("xmlns", "http://www.w3.org/2000/svg");
 
-    // Make SVG responsive so it scales to container width in previews
-    // - add a viewBox based on the configured pixel dimensions
-    // - remove fixed width/height attributes so CSS sizing can apply
-    // - ensure aspect ratio is preserved and it's displayed as a block
+    // Make SVG responsive for preview sidebar, but keep fixed size for insert
     svgElement.setAttribute("viewBox", `0 0 ${width} ${height}`);
-    svgElement.setAttribute("preserveAspectRatio", "xMidYMid meet");
-    svgElement.removeAttribute("width");
-    svgElement.removeAttribute("height");
-    (svgElement as SVGSVGElement).style.maxWidth = "100%";
-    (svgElement as SVGSVGElement).style.height = "auto";
-    (svgElement as SVGSVGElement).style.display = "block";
+
+    if (options.purpose === "preview") {
+      svgElement.removeAttribute("width");
+      svgElement.removeAttribute("height");
+      svgElement.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      (svgElement as SVGSVGElement).style.maxWidth = "100%";
+      (svgElement as SVGSVGElement).style.height = "auto";
+      (svgElement as SVGSVGElement).style.display = "block";
+    }
 
     const svg = svgElement.outerHTML;
 
