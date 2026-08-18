@@ -403,6 +403,7 @@ export function ExcaliMath({
           ),
         },
       });
+      excalidrawAPI.refresh();
       emitSave();
     },
     [excalidrawAPI, emitSave]
