@@ -339,12 +339,15 @@ export function GraphPanel({
             <label style={labelStyle}>Paste CSV Data (x, y)</label>
             <textarea
               value={csvText} onChange={(e) => setCsvText(e.target.value)}
-              placeholder={"x, y\n1, 2\n2, 4\n3, 1\n4, 7"} rows={5} spellCheck={false}
+              placeholder={"x, y\n1, 2\n2, 4\n3, 1\n4, 7"} rows={6} spellCheck={false}
               style={{
                 ...inputStyle, fontFamily: '"Fira Code", "Cascadia Code", monospace',
-                resize: "vertical", lineHeight: 1.5,
+                resize: "vertical", lineHeight: 1.5, whiteSpace: "pre",
               }}
             />
+            <div style={{ fontSize: 10, color: t.textFaint, marginTop: 2, marginBottom: 4 }}>
+              One (x, y) pair per line, separated by comma
+            </div>
             <button type="button" onClick={handleAddCsvData} disabled={!csvText.trim()}
               style={{
                 padding: "7px 10px", border: `1px dashed ${t.border}`, borderRadius: 6,
