@@ -106,10 +106,7 @@ const LINE_HEIGHTS: Record<number, number> = {
   [FONT_FAMILY["Liberation Sans"]]: 1.15,
 };
 
-async function measureText(text: string, fontSize: number, fontFamily: number): Promise<{ width: number; height: number }> {
-  if (typeof document !== "undefined" && document.fonts) {
-    await document.fonts.ready;
-  }
+function measureText(text: string, fontSize: number, fontFamily: number): { width: number; height: number } {
   const lineHeight = LINE_HEIGHTS[fontFamily] || 1.25;
   const height = fontSize * lineHeight * text.split("\n").length;
   if (text.trim() === "") {
@@ -158,11 +155,11 @@ export interface ShapeInsertResult {
  * Shapes with an `svg` field are inserted as image elements (smooth curves).
  * Shapes with only `elements` are inserted as native Excalidraw elements.
  */
-export async function shapeToExcalidrawElements(
+export function shapeToExcalidrawElements(
   shape: LibraryShape,
   x: number,
   y: number
-): Promise<ShapeInsertResult> {
+): ShapeInsertResult {
   // If the shape has SVG, insert as an image element
   if (shape.svg) {
     const dataUrl = svgToDataUrl(shape.svg);
@@ -207,8 +204,7 @@ export async function shapeToExcalidrawElements(
   // Native elements path
   const groupId = generateId();
 
-  const elements = await Promise.all(
-    shape.elements.map(async (el: ExcalidrawLibElement) => {
+  const elements = shape.elements.map((el: ExcalidrawLibElement) => {
     const id = generateId();
     const base = {
       id,
@@ -242,7 +238,7 @@ export async function shapeToExcalidrawElements(
       const fontSize = el.fontSize ?? 16;
       const fontFamily = el.fontFamily ?? 1;
       const text = el.text || "";
-      const measured = await measureText(text, fontSize, fontFamily);
+      const measured = measureText(text, fontSize, fontFamily);
       const alignOffsetX = getTextAlignOffset(el.textAlign, el.width > 0 ? el.width : measured.width, measured.width);
 
       return {
@@ -275,8 +271,7 @@ export async function shapeToExcalidrawElements(
     }
 
     return base;
-  })
-);
+  });
 
   return { elements, files: [] };
 }

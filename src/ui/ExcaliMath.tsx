@@ -380,7 +380,7 @@ export function ExcaliMath({
   );
 
   const handleInsertShape = useCallback(
-    async (shape: LibraryShape) => {
+    (shape: LibraryShape) => {
       if (!excalidrawAPI) return;
       const appState = excalidrawAPI.getAppState();
       const centerX =
@@ -388,7 +388,7 @@ export function ExcaliMath({
       const centerY =
         (appState.scrollY * -1 + appState.height / 2) / appState.zoom.value;
 
-      const result = await shapeToExcalidrawElements(shape, centerX - 50, centerY - 50);
+      const result = shapeToExcalidrawElements(shape, centerX - 50, centerY - 50);
       if (result.files.length > 0) {
         excalidrawAPI.addFiles(result.files);
       }
@@ -403,7 +403,6 @@ export function ExcaliMath({
           ),
         },
       });
-      excalidrawAPI.refresh();
       emitSave();
     },
     [excalidrawAPI, emitSave]
