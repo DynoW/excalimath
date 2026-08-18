@@ -70,7 +70,11 @@ function getCanvasContext(): CanvasRenderingContext2D {
   if (!canvas) {
     canvas = document.createElement("canvas");
   }
-  return canvas.getContext("2d")!;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    throw new Error("Canvas 2D context not available");
+  }
+  return ctx;
 }
 
 /** Font-family names + fallback chains, matching Excalidraw's internal getFontFamilyString */
@@ -235,8 +239,8 @@ export async function shapeToExcalidrawElements(
     };
 
     if (el.type === "text") {
-      const fontSize = el.fontSize || 16;
-      const fontFamily = el.fontFamily || 1;
+      const fontSize = el.fontSize ?? 16;
+      const fontFamily = el.fontFamily ?? 1;
       const text = el.text || "";
       const measured = await measureText(text, fontSize, fontFamily);
       const alignOffsetX = getTextAlignOffset(el.textAlign, el.width > 0 ? el.width : measured.width, measured.width);

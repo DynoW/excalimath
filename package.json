@@ -1,6 +1,6 @@
 {
   "name": "@excalimath/core",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Math companion plugin for Excalidraw — KaTeX equations, Plotly.js graphs, and STEM shape libraries.",
   "keywords": [
     "excalidraw",
