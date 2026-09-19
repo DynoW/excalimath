@@ -1,6 +1,6 @@
 {
   "name": "@excalimath/core",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Math companion plugin for Excalidraw — KaTeX equations, Plotly.js graphs, and STEM shape libraries.",
   "keywords": [
     "excalidraw",
@@ -46,10 +46,10 @@
     "dev": "vite build --watch",
     "build": "tsc && vite build",
     "typecheck": "tsc --noEmit",
-    "demo:install": "npm run build && npm pack --pack-destination /tmp && cd ../excalimath-demo && npm install /tmp/excalimath-core-1.3.0.tgz",
-    "demo:restore": "cd ../excalimath-demo && npm install @excalimath/core@^1.3.0",
-    "vscode:install": "npm run build && npm pack --pack-destination /tmp && cd ../excalimath-vscode/webview && npm install /tmp/excalimath-core-1.3.0.tgz",
-    "vscode:restore": "cd ../excalimath-vscode/webview && npm install @excalimath/core@^1.3.0"
+    "demo:install": "npm run build && npm pack --pack-destination /tmp && cd ../excalimath-demo && npm install /tmp/excalimath-core-1.3.1.tgz",
+    "demo:restore": "cd ../excalimath-demo && npm install @excalimath/core@^1.3.1",
+    "vscode:install": "npm run build && npm pack --pack-destination /tmp && cd ../excalimath-vscode/webview && npm install /tmp/excalimath-core-1.3.1.tgz",
+    "vscode:restore": "cd ../excalimath-vscode/webview && npm install @excalimath/core@^1.3.1"
   },
   "peerDependencies": {
     "@excalidraw/excalidraw": ">=0.17.0",

@@ -120,6 +120,11 @@ export function ExcaliMath({
   // .excalidraw file via Excalidraw's native open dialog).
   const restoringRef = useRef(false);
   const knownFileIdsRef = useRef<Set<string>>(new Set());
+  // Files already present when the scene was restored (e.g. the host passed
+  // them through Excalidraw's initialData). Their element canvas may have been
+  // generated before the image finished decoding, so force one cache
+  // invalidation per fileId after mount.
+  const refreshedFileIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!excalidrawAPI) return;
@@ -130,17 +135,28 @@ export function ExcaliMath({
       const elements = excalidrawAPI.getSceneElements();
       const files = excalidrawAPI.getFiles?.() || {};
 
-      // Find ExcaliMath image elements whose fileId is missing from files
+      // Collect ExcaliMath image elements with missing files (restore) and
+      // with present-but-maybe-stale files (canvas cache refresh).
       const needsRestore: typeof elements = [];
+      const presentFileIds = new Set<string>();
       for (const el of elements) {
-        if (
-          el.type === "image" &&
-          el.fileId &&
-          el.customData?.excalimath_type &&
-          !files[el.fileId] &&
-          !knownFileIdsRef.current.has(el.fileId)
-        ) {
-          needsRestore.push(el);
+        if (el.type !== "image" || !el.fileId || !el.customData?.excalimath_type) {
+          continue;
+        }
+        if (!files[el.fileId]) {
+          if (!knownFileIdsRef.current.has(el.fileId)) needsRestore.push(el);
+        } else if (!refreshedFileIdsRef.current.has(el.fileId)) {
+          presentFileIds.add(el.fileId);
+        }
+      }
+
+      // addFiles() drops the image and shape caches for these elements, which
+      // is the only public API that forces Excalidraw 0.17.x to regenerate the
+      // cached element canvas after the image decoded.
+      if (presentFileIds.size > 0) {
+        excalidrawAPI.addFiles([...presentFileIds].map((id) => files[id]));
+        for (const id of presentFileIds) {
+          refreshedFileIdsRef.current.add(id);
         }
       }
 
@@ -156,6 +172,7 @@ export function ExcaliMath({
           // Track restored IDs so we don't re-process them
           for (const f of restored) {
             knownFileIdsRef.current.add(f.id);
+            refreshedFileIdsRef.current.add(f.id);
           }
           // Regenerate element canvases once the restored images decode
           refreshImageCanvases(
