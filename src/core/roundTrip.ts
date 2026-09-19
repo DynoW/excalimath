@@ -12,6 +12,7 @@
 
 import { isExcalimathElement, getExcalimathMetadata, svgToDataUrl, createFileEntry } from "./elementFactory";
 import { renderLatexToSvg } from "../plugins/equation/renderer";
+import { renderGraphToSvg } from "../plugins/graph/plotRenderer";
 
 /**
  * Scan all elements in a scene and regenerate file entries for any
@@ -42,12 +43,8 @@ export function restoreExcalimathFiles(
       }
     }
 
-    if (meta.excalimath_type === "graph" && meta.excalimath_graph_config) {
-      // Graph re-rendering is async (Plotly), so we store a placeholder
-      // and the actual re-render happens via restoreGraphFiles()
-      // For now, graphs that were saved with their SVG data URL intact
-      // will work. Full async restoration is handled separately.
-    }
+    // Graph elements need async Plotly rendering; handled by
+    // restoreExcalimathFilesAsync() below.
   }
 
   return files;
@@ -63,7 +60,6 @@ export async function restoreExcalimathFilesAsync(
   // Start with sync equation restores
   const files = restoreExcalimathFiles(elements);
 
-  // Lazily import graph renderer to avoid loading Plotly if not needed
   for (const el of elements) {
     if (el.type !== "image" || !isExcalimathElement(el) || !el.fileId) continue;
 
@@ -72,13 +68,12 @@ export async function restoreExcalimathFilesAsync(
 
     try {
       const config = JSON.parse(meta.excalimath_graph_config);
-      const { renderGraphToSvg } = await import("../plugins/graph/plotRenderer");
       const result = await renderGraphToSvg(config);
       const dataUrl = svgToDataUrl(result.svg);
       const { fileEntry } = createFileEntry(dataUrl, el.fileId);
       files.push(fileEntry);
-    } catch {
-      // Skip elements that fail to re-render
+    } catch (err) {
+      console.warn("[ExcaliMath] Failed to restore graph element:", err);
     }
   }
 

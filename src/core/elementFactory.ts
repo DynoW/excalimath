@@ -16,10 +16,14 @@ function generateId(): string {
     Math.random().toString(36).substring(2, 15);
 }
 
-/** Convert an SVG string to a data URL suitable for Excalidraw imageElement */
+/** Convert an SVG string to a base64 data URL suitable for Excalidraw imageElement */
 export function svgToDataUrl(svg: string): string {
-  const encoded = encodeURIComponent(svg);
-  return `data:image/svg+xml,${encoded}`;
+  // base64 (not percent-encoding): Excalidraw >=0.18 decodes file dataURLs
+  // with atob during addMissingFiles and throws on non-base64 payloads
+  const bytes = new TextEncoder().encode(svg);
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return `data:image/svg+xml;base64,${btoa(binary)}`;
 }
 
 /** Create a File-like entry for the Excalidraw files map */

@@ -6,9 +6,22 @@
  * as an Excalidraw image element.
  */
 
-import Plotly from "plotly.js-dist-min";
+import type { Data, Layout } from "plotly.js-dist-min";
 import { evaluateFunction } from "./evaluator";
 import type { GraphConfig } from "./types";
+
+type PlotlyModule = typeof import("plotly.js-dist-min");
+
+let plotlyPromise: Promise<PlotlyModule> | null = null;
+
+/** Lazy-load Plotly; only fetched when a graph is actually rendered. */
+function loadPlotly(): Promise<PlotlyModule> {
+  plotlyPromise ??= import("plotly.js-dist-min").then((mod) => {
+    const interop = mod as PlotlyModule & { default?: PlotlyModule };
+    return interop.default ?? mod;
+  });
+  return plotlyPromise;
+}
 
 type RenderPurpose = "preview" | "insert";
 
@@ -113,7 +126,7 @@ export async function renderGraphToSvg(
   })();
 
   // Build Plotly traces from function expressions
-  const traces: Plotly.Data[] = [];
+  const traces: Data[] = [];
 
   for (const fn of functions) {
     if (!fn.expression.trim()) continue;
@@ -155,7 +168,7 @@ export async function renderGraphToSvg(
     throw new Error("No valid traces to plot");
   }
 
-  const layout: Partial<Plotly.Layout> = {
+  const layout: Partial<Layout> = {
     width,
     height,
     xaxis: {
@@ -197,6 +210,7 @@ export async function renderGraphToSvg(
   document.body.appendChild(container);
 
   try {
+    const Plotly = await loadPlotly();
     await Plotly.newPlot(container, traces, layout, {
       staticPlot: true,
       responsive: false,

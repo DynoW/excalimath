@@ -23,6 +23,41 @@ import type { LibraryShape } from "../plugins/geometry/types";
 
 export type ActiveTab = "equation" | "graph" | "library" | null;
 
+/**
+ * Force-regenerate Excalidraw's cached element canvases after image files
+ * decode, working around the 0.17.x placeholder race (mainly Firefox).
+ */
+async function refreshImageCanvases(
+  excalidrawAPI: any,
+  dataURLs: string[]
+): Promise<void> {
+  if (dataURLs.length === 0) return;
+
+  await Promise.all(
+    dataURLs.map(
+      (url) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+          img.src = url;
+        })
+    )
+  );
+
+  // Give Excalidraw's own decodes (started earlier, same URLs) a beat
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  const getElements =
+    excalidrawAPI.getSceneElementsIncludingDeleted?.bind(excalidrawAPI) ||
+    excalidrawAPI.getSceneElements?.bind(excalidrawAPI);
+  if (!getElements) return;
+
+  excalidrawAPI.updateScene({
+    elements: getElements().map((el: any) => ({ ...el })),
+  });
+}
+
 /** Serialisable scene data for save/load */
 export interface ExcalimathSceneData {
   elements: any[];
@@ -122,6 +157,11 @@ export function ExcaliMath({
           for (const f of restored) {
             knownFileIdsRef.current.add(f.id);
           }
+          // Regenerate element canvases once the restored images decode
+          refreshImageCanvases(
+            excalidrawAPI,
+            restored.map((f) => f.dataURL)
+          ).catch(() => {});
         }
       } catch (err) {
         console.warn("[ExcaliMath] Failed to restore elements:", err);
@@ -170,9 +210,7 @@ export function ExcaliMath({
   }, [excalidrawAPI]);
 
   // ── Auto-update on canvas selection ──
-  // When the sidebar is open and user selects an equation/graph on canvas,
-  // automatically switch to edit mode for that element.
-  // When deselecting an element, drop back to insert mode.
+  // Selecting an ExcaliMath element switches to edit mode; deselect goes back to insert mode.
   const syncSelectionFromCanvas = useCallback(() => {
     if (!excalidrawAPI) return;
 
