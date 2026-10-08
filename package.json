@@ -57,7 +57,7 @@
     "react-dom": ">=18.0.0"
   },
   "dependencies": {
-    "katex": "^0.18.9",
+    "katex": "^0.19.0",
     "mathjs": "^15.2.0",
     "plotly.js-dist-min": "^4.1.1"
   },
